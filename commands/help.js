@@ -1,34 +1,59 @@
-const { MessageEmbed } = require("discord.js")
-const { readdirSync } = require("fs")
-const { COLOR } = require("../config.json");
+const { MessageEmbed } = require("discord.js");
+
 module.exports = {
   name: "help",
-  description: "Get all commands name and description",
-  execute (client, message, args) {
-    
-    
-let embed = new MessageEmbed()
-.setAuthor("HELP SECTION", client.user.displayAvatarURL())
-.setThumbnail(client.user.displayAvatarURL())
-.setColor(COLOR)
-.setDescription(`These are the command ${client.user.username} Bot, INVITE ME - LINK`)
-let command = readdirSync("./commands")    
+  description:
+    "Get list of all command and even get to know every command detials",
+  usage: "help <cmd>",
+  category: "info",
+  run: async (client, message, args) => {
+    if (args[0]) {
+      const command = await client.commands.get(args[0]);
 
-let i;
-    for(i = 0; i < command.length; i++) {
-      console.log(command[i])
+      if (!command) {
+        return message.channel.send("Unknown Command: " + args[0]);
+      }
+
+      let embed = new MessageEmbed()
+        .setAuthor(command.name, client.user.displayAvatarURL())
+        .addField("Description", command.description || "Not Provided :(")
+        .addField("Usage", "`" + command.usage + "`" || "Not Provied")
+        .addField("Aliases", "`" + command.aliases + "`" || "Not Provied")
+        .setThumbnail(client.user.displayAvatarURL())
+        .setColor("#ff0000")
+        .setFooter(client.user.username, client.user.displayAvatarURL());
+    
       
-      const cmd = client.commands.get(command[i].replace(".js", ""))
-      embed.addField(`**${cmd.name}**`, cmd.description, true)
-      
+        return message.channel.send(embed);
+    } else {
+      const commands = await client.commands;
+
+      let emx = new MessageEmbed()
+        .setDescription("Made By highintoxic#7394")
+        .setColor("#ff0000")
+        .setFooter(client.user.username, client.user.displayAvatarURL())
+        .setThumbnail(client.user.displayAvatarURL());
+
+      let com = {};
+      for (let comm of commands.array()) {
+        let category = comm.category || "Unknown";
+        let name = comm.name;
+
+        if (!com[category]) {
+          com[category] = [];
+        }
+        com[category].push(name);
+      }
+
+      for(const [key, value] of Object.entries(com)) {
+        let category = key;
+
+        let desc = "`" + value.join("`, `") + "`";
+
+        emx.addField(`${category.toUpperCase()}[${value.length}]`, desc);
+      }
+
+      return message.channel.send(emx);
     }
-    
-    message.channel.send(embed)
-    
-    
-
-    
-    
-    
   }
-}
+};
