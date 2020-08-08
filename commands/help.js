@@ -6,7 +6,8 @@ module.exports = {
     "Get list of all command and even get to know every command detials",
   usage: "help <cmd>",
   category: "info",
-  run: async (client, message, args) => {
+  execute(client, message, args) {
+    async (client, message, args) => {
     if (args[0]) {
       const command = await client.commands.get(args[0]);
 
@@ -56,4 +57,5 @@ module.exports = {
       return message.channel.send(emx);
     }
   }
+}
 };
